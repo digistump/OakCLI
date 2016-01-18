@@ -1,0 +1,10 @@
+{
+  "name": "OakTools",
+  "description": "Tools for the Digistump Oak",
+  "version": "1.0.0",
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "readline-sync": "^1.2.22",
+    "spark": "^1.0.0"
+  }
+}
