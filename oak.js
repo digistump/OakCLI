@@ -12,7 +12,8 @@ pathToConfig = (process.env.APPDATA + "\\oak\\" || (process.platform == 'darwin'
 
 if(!fs.existsSync(pathToConfig+'config.json')){
 	if(process.argv.length>2){
-		failAndUsage("Config file not found at: "+pathToConfig+" - please run the oak tool from the command line with no arguments to configure.");
+		console.log("Config file not found at: "+pathToConfig+'config.json'+" - please run the oak tool from the command line with no arguments to configure.");
+		process.exit(1);
 	}
 	else{
 		selectAccountAndDevice();
@@ -20,7 +21,7 @@ if(!fs.existsSync(pathToConfig+'config.json')){
 }
 else{
 
-	var config = require(pathToConfig+'config.js');
+	var config = require(pathToConfig+'config.json');
 
 	if(process.argv.length>2){
 		if(process.argv.length>3){
@@ -101,6 +102,11 @@ function loginCallback(err,access){
 		  devicesList.push(deviceName);
 		  idsList.push(device.id);
 		}
+
+		if(devicesList.length<1){
+			console.log("No devices available.");
+			process.exit(1);
+		}
 		var index = readlineSync.keyInSelect(devicesList, 'Which device would you like to use?');
 		if(index < 0){
 			console.log("Configuration canceled.")
@@ -114,13 +120,15 @@ function loginCallback(err,access){
 
 function writeConfig(accessToken,deviceID){
 	if(!mkdirp.sync(pathToConfig)){
-		console.log("Could not create config directory: "+pathToConfig);
-        process.exit(1);
+		if(!fs.existsSync(pathToConfig)){
+			console.log("Could not create config directory: "+pathToConfig);
+        	process.exit(1);
+    	}
 	}
 	var toWrite = JSON.stringify({"access_token":accessToken,"device_id":deviceID});
-	fs.writeFile(pathToConfig+'config.js', toWrite, function(err) {
+	fs.writeFile(pathToConfig+'config.json', toWrite, function(err) {
     if(err) {
-        console.log("Could not write config file to: "+pathToConfig+'config.js');
+        console.log("Could not write config file to: "+pathToConfig+'config.json');
         process.exit(1);
     }
     else{
@@ -132,6 +140,6 @@ function writeConfig(accessToken,deviceID){
 
 function failAndUsage(errorText){
 	console.log(errorText);
-	console.log('Usage');
+	console.log('------\nUsage:\n\toak [filename] - Upload the bin file located at filename to the selected Oak.\n\toak - Set the Particle account and Oak device to use when uploading.');
 	process.exit(1);
 }
