@@ -3,7 +3,7 @@ var spark = require('spark');
 var fs = require('fs');
 var readlineSync = require('readline-sync');
 var mkdirp = require('mkdirp');
-
+var path = require('path');
 var pathToBin;
 var pathToConfig;
 
@@ -29,6 +29,7 @@ else{
 		}
 		//should be a file
 		pathToBin = process.argv[2].trim();
+		//console.log(pathToBin);
 		if(!fs.existsSync(pathToBin)){
 			failAndUsage("Invalid file name.");
 		}
@@ -47,7 +48,12 @@ else{
 					    fs.unlinkSync(pathToConfig+'config.json');
 					    process.exit(1);
 					}
-					device.flash(pathToBin, function(err, data) {
+
+					var onlyPath = path.dirname(pathToBin);
+					var onlyFile = path.basename(pathToBin);
+					process.chdir(onlyPath);
+					console.log('Sending file to cloud, to flash to device.');
+					device.flash([onlyFile], function(err, data) {
 					  if (err) {
 					    console.log('An error occurred while flashing the device:', err);
 					    process.exit(1);
