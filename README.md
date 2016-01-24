@@ -13,3 +13,12 @@
 
 **oak** Accepts credentials for Particle Cloud, fetches access token, then presents a list of devices on your account to choose from. Saves selected device id and access_token to config file.
 
+## Build Process
+ - Install node.js
+ - Install python
+ - "npm install -g nexe"
+ - Clone this repository, cd to it
+ - "npm install"
+ - "nexe -i ./oak.js -o ./oak"
+
+
