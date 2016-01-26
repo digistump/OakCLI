@@ -7,8 +7,17 @@ var path = require('path');
 var pathToBin;
 var pathToConfig;
 
-pathToConfig = (process.env.APPDATA + "\\oak\\" || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preferences/oak/' : process.env.HOME + '.oak/'));
-
+//pathToConfig = (process.env.APPDATA + "\\oak\\" || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preferences/oak/' : process.env.HOME + '.oak/'));
+pathToConfig = '~/';
+if (process.platform == 'linux' || process.platform == 'freebsd') {
+	pathToConfig = process.env.HOME + '/.oak/';
+}
+else if(process.platform == 'win32') {
+	pathToConfig = process.env.APPDATA + "\\oak\\";
+}
+else if(process.platform == 'darwin') {
+	pathToConfig = process.env.HOME + '/Library/Preferences/oak/';
+}
 
 if(!fs.existsSync(pathToConfig+'config.json')){
 	if(process.argv.length>2){
