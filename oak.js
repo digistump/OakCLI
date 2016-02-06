@@ -4,8 +4,56 @@ var fs = require('fs');
 var readlineSync = require('readline-sync');
 var mkdirp = require('mkdirp');
 var path = require('path');
+var colors = require('colors');
 var pathToBin;
 var pathToConfig;
+var windows = process.platform.indexOf("win") === 0;
+var config;
+
+function clear()
+{
+	var i,lines;
+	var stdout = "";
+	
+	if (windows === false)
+	{
+		stdout += "\x1B[2J";
+	}
+	else
+	{
+		lines = process.stdout.getWindowSize()[1];
+		
+		for (i=0; i<lines; i++)
+		{
+			stdout += "\r\n";
+		}
+	}
+	
+	// Reset cursur
+	stdout += "\x1B[0f";
+	
+	process.stdout.write(stdout);
+}
+
+function loadConfig(){
+	try{
+		config = require(pathToConfig+'config.json');
+		return true;
+	}
+	catch(e){
+		return false;
+	}
+}
+
+function loginOrFail(){
+	if(process.argv.length>2){
+		console.log("Config file not found at: "+pathToConfig+'config.json'+" - please run the oak tool from the command line with no arguments to configure.");
+		process.exit(1);
+	}
+	else{
+		particleLogin();
+	}
+}
 
 //pathToConfig = (process.env.APPDATA + "\\oak\\" || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preferences/oak/' : process.env.HOME + '.oak/'));
 pathToConfig = '~/';
@@ -20,19 +68,14 @@ else if(process.platform == 'darwin') {
 }
 
 if(!fs.existsSync(pathToConfig+'config.json')){
-	if(process.argv.length>2){
-		console.log("Config file not found at: "+pathToConfig+'config.json'+" - please run the oak tool from the command line with no arguments to configure.");
-		process.exit(1);
-	}
-	else{
-		selectAccountAndDevice();
-	}
+		loginOrFail();
 }
 else{
 
-	var config = require(pathToConfig+'config.json');
-
-	if(process.argv.length>2){
+	if(!loadConfig()){
+		loginOrFail();
+	}
+	else if(process.argv.length>2){
 		if(process.argv.length>3){
 			failAndUsage("Invalid arguments.");
 		}
@@ -82,11 +125,28 @@ else{
 }
 
 function selectAccountAndDevice(){
+	console.log("Logging in to Particle...".green);
+	spark.login({accessToken: config.access_token},function(err, data){
+		//todo get device, handle errors
+		if(err){
+			console.log('Your access token has expired, please login.');
+	    	fs.unlinkSync(pathToConfig+'config.json');
+	    	particleLogin();
+		}
+		else{
+				loginCallback(false,config);
+		}
+	});
+}
+
+function particleLogin(){
+	clear();
 	//prompt for user and password
 	var userName = readlineSync.questionEMail('Particle Username/Email:');
 	var password = readlineSync.question('Particle Password:', {
 	  hideEchoBack: true // The typed text on screen is hidden by `*` (default). 
 	});
+	console.log("Logging in to Particle...".green);
 	spark.login({username: userName.trim(), password: password.trim()},loginCallback);
 
 }
@@ -110,9 +170,12 @@ function loginCallback(err,access){
 
 		for (var i in devices) {
 		  device = devices[i];
-		  var deviceName = device.name;
+		  var deviceName;
 		  if(deviceName === null){
-		  	deviceName = "Unnamed Device (Device ID: )"+device.id;
+		  	deviceName = "Unnamed Device (Device ID: "+device.id+")";
+		  }
+		  else{
+		  	deviceName = device.name+" (Device ID: "+device.id+")";
 		  }
 		  devicesList.push(deviceName);
 		  idsList.push(device.id);
@@ -122,35 +185,70 @@ function loginCallback(err,access){
 			console.log("No devices available.");
 			process.exit(1);
 		}
-		var index = readlineSync.keyInSelect(devicesList, 'Which device would you like to use?');
-		if(index < 0){
-			console.log("Configuration canceled.")
-			process.exit(0);
+
+		devicesList.push("------------------------");
+		devicesList.push("Switch Particle Accounts");
+		var selectedDevice = null;
+		if(config !== undefined){
+			if(config.device_name !== undefined){
+				selectedDevice = config.device_name;
+			}
 		}
-		writeConfig(access.access_token,idsList[index]);
+
+		clear();
+		while(1){
+			var index;
+			if(selectedDevice == null){
+				index = readlineSync.keyInSelect(devicesList, 'Which device would you like to use?', {cancel: 'Exit'});
+			}
+			else{
+				console.log("Currently selected device: ".yellow.bold+selectedDevice.cyan.bold);
+				index = readlineSync.keyInSelect(devicesList, 'Select a device to switch active devices:', {cancel: 'Exit'});
+			}
+			if(index < 0){
+				process.exit(0);
+			}
+			else if(devicesList[index] == "------------------------"){
+				clear();
+				continue;
+			}
+			else if(devicesList[index] == "Switch Particle Accounts"){
+				particleLogin();
+				return;
+			}
+			else{
+				console.log("Saving");
+				selectedDevice = devicesList[index];
+				if(writeConfig(access.access_token,idsList[index],selectedDevice)){
+					clear();
+					console.log("Configuration saved. You can now upload files to this device.".green.bold);
+					console.log(" ");
+				}
+				else{
+					console.log("Could not write config file to: "+pathToConfig+'config.json');
+				}
+			}
+		}
 	});
 }
 
 
 
-function writeConfig(accessToken,deviceID){
+function writeConfig(accessToken,deviceID,deviceName){
 	if(!mkdirp.sync(pathToConfig)){
 		if(!fs.existsSync(pathToConfig)){
 			console.log("Could not create config directory: "+pathToConfig);
         	process.exit(1);
     	}
 	}
-	var toWrite = JSON.stringify({"access_token":accessToken,"device_id":deviceID});
-	fs.writeFile(pathToConfig+'config.json', toWrite, function(err) {
-    if(err) {
-        console.log("Could not write config file to: "+pathToConfig+'config.json');
-        process.exit(1);
-    }
-    else{
-    	console.log("Configuration saved. You can now use this tool to upload files to your device.");
-    	process.exit(0);
-    }
-	}); 
+	var toWrite = JSON.stringify({"access_token":accessToken,"device_id":deviceID,"device_name":deviceName});
+	try{
+		fs.writeFileSync(pathToConfig+'config.json', toWrite);
+	}
+	catch(e){
+		return false;
+	}
+	return true;
 }
 
 function failAndUsage(errorText){
