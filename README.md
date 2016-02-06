@@ -9,9 +9,9 @@
 
 **Usage: oak [filename]**
 
-**oak [filename]** Uploads the bin file at [filename] to the Oak via the Particle Cloud using the credentials and device previously provided. Quits with error is no credentials previously provided or access token has expired.
+**oak [filename]** Uploads the bin file at [filename] to the Oak via the Particle Cloud using the credentials and device currently selected. Quits with error is no credentials previously provided or access token has expired.
 
-**oak** Accepts credentials for Particle Cloud, fetches access token, then presents a list of devices on your account to choose from. Saves selected device id and access_token to config file.
+**oak** If not yet logged in, or access token has expired - accepts credentials for Particle Cloud, fetches access token, then presents a list of devices on your account to choose from. If it already has a valid access token it will go straight to the list. Selecting a device saves the selected device id and access_token to the config file, so any initiated uploads will go to that device. Remains in device selection loop so you can quickly change devices, exit, or change accounts.
 
 ## Build Process
  - Install node.js

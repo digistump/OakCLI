@@ -104,7 +104,7 @@ else{
 					var onlyPath = path.dirname(pathToBin);
 					var onlyFile = path.basename(pathToBin);
 					process.chdir(onlyPath);
-					console.log('Sending file to cloud, to flash to device.');
+					console.log('Sending file to cloud, to flash to device...');
 					device.flash([onlyFile], function(err, data) {
 					  if (err) {
 					    console.log('An error occurred while flashing the device:', err);
