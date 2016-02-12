@@ -3,7 +3,7 @@
 
 **Download:** 
 - [Windows](https://github.com/digistump/OakCLI/releases/download/0.9.3/oakcli-0.9.3-win32.zip)
-- [Mac OSX](https://github.com/digistump/OakCLI/releases/download/0.9.3/oakcli-0.9.3-osx.zip)
+- [Mac OSX](https://github.com/digistump/OakCLI/releases/download/0.9.3/oakcli-0.9.3-osx.tar.gz)
 - [Linux 32bit](https://github.com/digistump/OakCLI/releases/download/0.9.3/oakcli-0.9.3-linux32.tar.gz)
 - [Linux 64bit](https://github.com/digistump/OakCLI/releases/download/0.9.3/oakcli-0.9.3-linux64.tar.gz)
 
