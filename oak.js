@@ -14,7 +14,7 @@ function clear()
 {
 	var i,lines;
 	var stdout = "";
-	
+
 	if (windows === false)
 	{
 		stdout += "\x1B[2J";
@@ -22,22 +22,23 @@ function clear()
 	else
 	{
 		lines = process.stdout.getWindowSize()[1];
-		
+
 		for (i=0; i<lines; i++)
 		{
 			stdout += "\r\n";
 		}
 	}
-	
+
 	// Reset cursur
 	stdout += "\x1B[0f";
-	
+
 	process.stdout.write(stdout);
 }
 
 function loadConfig(){
 	try{
-		config = require(pathToConfig+'config.json');
+		contents = fs.readFileSync(pathToConfig+'config.json', 'utf8');
+		config = JSON.parse(contents);
 		return true;
 	}
 	catch(e){
@@ -144,7 +145,7 @@ function particleLogin(){
 	//prompt for user and password
 	var userName = readlineSync.questionEMail('Particle Username/Email:');
 	var password = readlineSync.question('Particle Password:', {
-	  hideEchoBack: true // The typed text on screen is hidden by `*` (default). 
+	  hideEchoBack: true // The typed text on screen is hidden by `*` (default).
 	});
 	console.log("Logging in to Particle...".green);
 	spark.login({username: userName.trim(), password: password.trim()},loginCallback);
