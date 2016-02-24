@@ -1,2 +1,2 @@
 npm install
-nexe -i oak.js -o 
+nexe -i oak.js -o oak.exe
