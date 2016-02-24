@@ -8,6 +8,7 @@ var pathToBin;
 var pathToConfig;
 var windows = process.platform.indexOf("win") === 0;
 var config;
+var progressBarInterval;
 
 function clear()
 {
@@ -112,9 +113,36 @@ else{
 					    console.log('An error occurred while flashing the device:', err);
 					    process.exit(1);
 					  } else {
-					    console.log('Device flashing started successfully.');
-					    process.exit(0);
-					  }
+						    process.stdout.write('Flashing.');
+						    progressBarInterval = setInterval(progressBar, 1000);
+						    setTimeout(onFlashTimeout, 60 * 10 * 1000); // stop after 10 minutes
+						    spark.getEventStream(null, config.device_id, function(data) {
+						    	var eventData = data.data.trim();
+						    	if (data.name == 'spark/flash/status') {
+					    			clearInterval(progressBarInterval);
+						    		if (eventData == 'success') {
+						    			clearInterval(progressBarInterval);
+						    			console.log('Done.');
+						    		} else {
+						    			console.log('');
+						    			console.log('Flash failed');
+									    process.exit(0);
+						    		}
+ 						    	}
+						    	if (data.name == 'spark/status') {
+						    		if (eventData == 'offline') {
+						    			process.stdout.write('Rebooting Oak');
+						    			progressBarInterval = setInterval(progressBar, 1000);
+						    		}
+						    		if (eventData == 'online') {
+						    			clearInterval(progressBarInterval);
+						    			console.log('');
+						    			console.log('Oak Ready');
+									    process.exit(0);
+						    		}
+						    	}
+						    });
+						}
 					});
 				});
 			});
@@ -125,6 +153,17 @@ else{
 		
 		selectAccountAndDevice();
 	}
+}
+
+function onFlashTimeout() {
+	clearInterval(progressBarInterval);
+	console.log('');
+	console.log('Flash timeout');
+	process.exit(0);
+}
+
+function progressBar() {
+	process.stdout.write('.');
 }
 
 function selectAccountAndDevice(){
