@@ -37,7 +37,8 @@ function clear()
 
 function loadConfig(){
 	try{
-		config = require(pathToConfig+'config.json');
+		var config_contents = fs.readFileSync(pathToConfig+'config.json', 'utf8');
+		config = JSON.parse(config_contents);
 		return true;
 	}
 	catch(e){
@@ -101,6 +102,8 @@ else{
 					    process.exit(1);
 					}
 
+					console.log('Using config file at: '+pathToConfig+'config.json');
+
 					var onlyPath = path.dirname(pathToBin);
 					var onlyFile = path.basename(pathToBin);
 					process.chdir(onlyPath);
@@ -120,6 +123,7 @@ else{
 	}
 	else{
 		//go to config
+		
 		selectAccountAndDevice();
 	}
 }
@@ -221,7 +225,7 @@ function loginCallback(err,access){
 				selectedDevice = devicesList[index];
 				if(writeConfig(access.access_token,idsList[index],selectedDevice)){
 					clear();
-					console.log("Configuration saved. You can now upload files to this device.".green.bold);
+					console.log("Configuration saved at "+pathToConfig+"config.json. You can now upload files to this device.".green.bold);
 					console.log(" ");
 				}
 				else{
