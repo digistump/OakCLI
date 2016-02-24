@@ -1,4 +1,3 @@
-
 var spark = require('spark');
 var fs = require('fs');
 var readlineSync = require('readline-sync');
@@ -225,7 +224,8 @@ function loginCallback(err,access){
 				selectedDevice = devicesList[index];
 				if(writeConfig(access.access_token,idsList[index],selectedDevice)){
 					clear();
-					console.log("Configuration saved at "+pathToConfig+"config.json. You can now upload files to this device.".green.bold);
+					console.log("Configuration saved at "+pathToConfig+"config.json")
+					console.log("You can now upload files to this device.".green.bold);
 					console.log(" ");
 				}
 				else{
