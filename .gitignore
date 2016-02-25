@@ -3,5 +3,4 @@ tmp/
 builds/
 .vagrant/
 output/
-*.zip
-builds/
+build_scripts/boxes/
