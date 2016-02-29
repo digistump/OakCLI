@@ -222,6 +222,7 @@ function loginCallback(err,access){
 	spark.listDevices(function(err, devices) {
 		if(err || devices === null){
 			console.log("No devices available.");
+			readlineSync.keyIn("Press any key to exit.");
 			process.exit(1);
 		}
 
@@ -240,6 +241,7 @@ function loginCallback(err,access){
 
 		if(devicesList.length<1){
 			console.log("No devices available.");
+			readlineSync.keyIn("Press any key to exit.");
 			process.exit(1);
 		}
 
