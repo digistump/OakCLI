@@ -9,6 +9,8 @@ var pathToConfig;
 var windows = process.platform.indexOf("win") === 0;
 var config;
 var progressBarInterval;
+var flashTimeout;
+var rebootTimeout;
 
 function clear()
 {
@@ -72,7 +74,6 @@ if(!fs.existsSync(pathToConfig+'config.json')){
 		loginOrFail();
 }
 else{
-
 	if(!loadConfig()){
 		loginOrFail();
 	}
@@ -115,14 +116,16 @@ else{
 					  } else {
 						    process.stdout.write('Flashing.');
 						    progressBarInterval = setInterval(progressBar, 1000);
-						    setTimeout(onFlashTimeout, 60 * 10 * 1000); // stop after 10 minutes
+						    flashTimeout = setTimeout(onFlashTimeout, 60 * 3 * 1000); // flash timeout : 2 minutes
 						    spark.getEventStream(null, config.device_id, function(data) {
 						    	var eventData = data.data.trim();
 						    	if (data.name == 'spark/flash/status') {
 					    			clearInterval(progressBarInterval);
+					    			clearTimeout(flashTimeout);
 						    		if (eventData == 'success') {
 						    			clearInterval(progressBarInterval);
 						    			console.log('Done.');
+							    		rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
 						    		} else {
 						    			console.log('');
 						    			console.log('Flash failed');
@@ -131,10 +134,13 @@ else{
  						    	}
 						    	if (data.name == 'spark/status') {
 						    		if (eventData == 'offline') {
+					    				clearTimeout(rebootTimeout);
+									    rebootTimeout = setTimeout(onRebootTimeout, 60 * 1 * 1000); // online again timeout : 1 minutes
 						    			process.stdout.write('Rebooting Oak');
 						    			progressBarInterval = setInterval(progressBar, 1000);
 						    		}
 						    		if (eventData == 'online') {
+					    				clearTimeout(rebootTimeout);
 						    			clearInterval(progressBarInterval);
 						    			console.log('');
 						    			console.log('Oak Ready');
@@ -161,6 +167,15 @@ function onFlashTimeout() {
 	console.log('Flash timeout');
 	process.exit(0);
 }
+
+
+function onRebootTimeout() {
+	clearInterval(progressBarInterval);
+	console.log('');
+	console.log('Reboot timeout');
+	process.exit(0);
+}
+
 
 function progressBar() {
 	process.stdout.write('.');
