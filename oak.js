@@ -109,40 +109,42 @@ else{
 					var onlyFile = path.basename(pathToBin);
 					process.chdir(onlyPath);
 					console.log('Sending file to cloud, to flash to device...');
+
+							console.log('Flashing to: '+config.device_name);
 					device.flash([onlyFile], function(err, data) {
 					  if (err) {
 					    console.log('An error occurred while flashing the device:', err);
 					    process.exit(1);
 					  } else {
-						    process.stdout.write('Flashing.');
+						    process.stdout.write("\r\nFlashing.");
 						    progressBarInterval = setInterval(progressBar, 1000);
-						    flashTimeout = setTimeout(onFlashTimeout, 60 * 3 * 1000); // flash timeout : 2 minutes
+						    flashTimeout = setTimeout(onFlashTimeout, 60 * 1 * 1000); // flash timeout : 1 minute
 						    spark.getEventStream(null, config.device_id, function(data) {
 						    	var eventData = data.data.trim();
 						    	if (data.name == 'spark/flash/status') {
 					    			clearInterval(progressBarInterval);
 					    			clearTimeout(flashTimeout);
-						    		if (eventData == 'success') {
-						    			clearInterval(progressBarInterval);
-						    			console.log('Done.');
+						    		//if (eventData == 'success') {
+						    			//clearInterval(progressBarInterval);
+						    			console.log("");
 							    		rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
-						    		} else {
-						    			console.log('');
-						    			console.log('Flash failed');
-									    process.exit(0);
-						    		}
+						    		//} else {
+						    		//	console.log('');
+						    		//	console.log('Flash failed');
+									//    process.exit(0);
+						    		//}
  						    	}
 						    	if (data.name == 'spark/status') {
 						    		if (eventData == 'offline') {
 					    				clearTimeout(rebootTimeout);
 									    rebootTimeout = setTimeout(onRebootTimeout, 60 * 1 * 1000); // online again timeout : 1 minutes
-						    			process.stdout.write('Rebooting Oak');
+						    			process.stdout.write("\r\nRebooting Oak");
 						    			progressBarInterval = setInterval(progressBar, 1000);
 						    		}
 						    		if (eventData == 'online') {
 					    				clearTimeout(rebootTimeout);
 						    			clearInterval(progressBarInterval);
-						    			console.log('');
+						    			console.log("\r\n");
 						    			console.log('Oak Ready');
 									    process.exit(0);
 						    		}
@@ -163,16 +165,16 @@ else{
 
 function onFlashTimeout() {
 	clearInterval(progressBarInterval);
-	console.log('');
-	console.log('Flash timeout');
+	console.log("\r\n");
+	console.log('Flash timeout - flash failed.');
 	process.exit(0);
 }
 
 
 function onRebootTimeout() {
 	clearInterval(progressBarInterval);
-	console.log('');
-	console.log('Reboot timeout');
+	console.log("\r\n");
+	console.log('Reboot timeout - flash likely failed.');
 	process.exit(0);
 }
 
@@ -213,7 +215,8 @@ function particleLogin(){
 function loginCallback(err,access){
 	//get devices
 	if(err){
-		console.log("Invalid username or password.");
+		console.log("Invalid username or password.".red);
+		readlineSync.question("Press enter to exit.");
 		process.exit(1);
 	}
 	var devicesList = [];
@@ -221,8 +224,8 @@ function loginCallback(err,access){
 	var device;
 	spark.listDevices(function(err, devices) {
 		if(err || devices === null){
-			console.log("No devices available.");
-			readlineSync.keyIn("Press any key to exit.");
+			console.log("No devices available.".red);
+			readlineSync.question("Press enter to exit.");
 			process.exit(1);
 		}
 
@@ -240,8 +243,8 @@ function loginCallback(err,access){
 		}
 
 		if(devicesList.length<1){
-			console.log("No devices available.");
-			readlineSync.keyIn("Press any key to exit.");
+			console.log("No devices available.".red);
+			readlineSync.question("Press enter to exit.");
 			process.exit(1);
 		}
 
@@ -297,7 +300,8 @@ function loginCallback(err,access){
 function writeConfig(accessToken,deviceID,deviceName){
 	if(!mkdirp.sync(pathToConfig)){
 		if(!fs.existsSync(pathToConfig)){
-			console.log("Could not create config directory: "+pathToConfig);
+			console.log("Could not create config directory: ".red+pathToConfig.red);
+			readlineSync.question("Press enter to exit.");
         	process.exit(1);
     	}
 	}
