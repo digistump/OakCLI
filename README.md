@@ -2,10 +2,10 @@
 ## The Oak command line upload tool
 
 **Download:** 
-- [Windows](https://github.com/digistump/OakCLI/releases/download/0.9.4/oakcli-0.9.4-win32.zip)
-- [Mac OSX](https://github.com/digistump/OakCLI/releases/download/0.9.4/oakcli-0.9.4-osx.tar.gz)
-- [Linux 32bit](https://github.com/digistump/OakCLI/releases/download/0.9.4/oakcli-0.9.4-linux32.tar.gz)
-- [Linux 64bit](https://github.com/digistump/OakCLI/releases/download/0.9.4/oakcli-0.9.4-linux64.tar.gz)
+- [Windows](https://github.com/digistump/OakCLI/releases/download/0.9.5/oakcli-0.9.5-win32.zip)
+- [Mac OSX](https://github.com/digistump/OakCLI/releases/download/0.9.5/oakcli-0.9.5-osx.tar.gz)
+- [Linux 32bit](https://github.com/digistump/OakCLI/releases/download/0.9.5/oakcli-0.9.5-linux32.tar.gz)
+- [Linux 64bit](https://github.com/digistump/OakCLI/releases/download/0.9.5/oakcli-0.9.5-linux64.tar.gz)
 
 **Usage: oak [filename]**
 
