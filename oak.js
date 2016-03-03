@@ -149,13 +149,19 @@ if (!loadConfig()) {
                 if (data.name == 'spark/flash/status') {
                   clearInterval(progressBarInterval);
                   clearTimeout(flashTimeout);
-                  // there is a bug in particle cloud : sometimes 'spark/flash/status' 
+                  
                   if (eventData == 'success') {
                     flashSuccessfull = true;
                     console.log('Done.');
                     rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
-                  } else {
-                    errorAndQuit('Flash failed');
+                  } else if (eventData == 'failed') {
+                    // there is a bug in particle cloud : sometimes 'spark/flash/status'
+                    // return 'failed' but flash is ok
+                    // so wait for reboot
+                    flashSuccessfull = true;
+                    console.log('Failed but perhaps success.');
+                    rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
+                    //errorAndQuit('Flash failed');
                   }
                 }
                 if (data.name == 'spark/status') {
