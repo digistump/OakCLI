@@ -1,4 +1,9 @@
-03/02/2016 - thunderace - v0.9.6-candidate
+03/03/2016 - thunderace - v0.9.6-candidate2
+- ignore failed flash message - it's a particle bug
+- ignore offline message before success or failed flash message - same particle bug
+- config.json file remain compatible with old OakClLI versions
+- progress bar step set to 500 ms
+03/02/2016 - thunderace - v0.9.6-candidate 
 - spark library upgraded to latest version (1.1.0)
 - commander library added 
 - changeLog.md added (this file)

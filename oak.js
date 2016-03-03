@@ -19,10 +19,8 @@ program.version('0.9.6')
 var pathToBin;
 var pathToConfig;
 var config;
-var progressBarInterval;
 var flashTimeout;
-var rebootTimeout;
-var flashSuccessfull = false;
+var rebootTimeout = -1;
 var rebooting = false;
 var activeDeviceIndex = -1;
 
@@ -100,7 +98,6 @@ function loginOrFail() {
   }
 }
 
-//pathToConfig = (process.env.APPDATA + "\\oak\\" || (process.platform == 'darwin' ? process.env.HOME + 'Library/Preferences/oak/' : process.env.HOME + '.oak/'));
 pathToConfig = '~/';
 if (process.platform == 'linux' || process.platform == 'freebsd') {
   pathToConfig = process.env.HOME + '/.oak/';
@@ -141,47 +138,44 @@ if (!loadConfig()) {
             if (err) {
               errorAndQuit('An error occurred while flashing the device:' + err);
             } else {
-              process.stdout.write("Flashing.");
-              progressBarInterval = setInterval(progressBar, 1000);
+              startProgressBar("Flashing.");
               flashTimeout = setTimeout(onFlashTimeout, 60 * 1 * 1000); // flash timeout : 1 minute
-              spark.getEventStream(null, config.device_id, function(data) {
+              spark.getEventStream(null, config.devices[activeDeviceIndex].device_id, function(data) {
                 var eventData = data.data.trim();
                 if (data.name == 'spark/flash/status') {
-                  clearInterval(progressBarInterval);
                   clearTimeout(flashTimeout);
                   
                   if (eventData == 'success') {
-                    flashSuccessfull = true;
                     console.log('Done.');
                     rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
                   } else if (eventData == 'failed') {
                     // there is a bug in particle cloud : sometimes 'spark/flash/status'
                     // return 'failed' but flash is ok
                     // so wait for reboot
-                    flashSuccessfull = true;
-                    console.log('Failed but perhaps success.');
-                    rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
+                    if (rebooting == false) { // we can have the offline message before the falsh failed message
+                      console.log(os.EOL + 'Failed but perhaps success.');
+                      rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
+                    }
                     //errorAndQuit('Flash failed');
                   }
                 }
                 if (data.name == 'spark/status') {
                   if (eventData == 'offline') {
-                    if (flashSuccessfull === false) {
-                      errorAndQuit('Oak is gone before flash sucessfull.');
-                    }
+                    clearTimeout(flashTimeout);
                     rebooting = true;
-                    clearTimeout(rebootTimeout);
+                    if (rebootTimeout != -1) {
+                      clearTimeout(rebootTimeout);
+                    }
                     rebootTimeout = setTimeout(onRebootTimeout, 60 * 1 * 1000); // online again timeout : 1 minutes
-                    process.stdout.write('Rebooting Oak');
-                    progressBarInterval = setInterval(progressBar, 1000);
+                    process.stdout.write(os.EOL + 'Rebooting Oak');
                   }
                   if (eventData == 'online') {
                     if (rebooting == false) {
-                      errorAndQuit('Oak is back before flash sucessfull.');
+                      errorAndQuit('Oak is back online before flash sucessfull.');
                     }					    	
                     clearTimeout(rebootTimeout);
-                    clearInterval(progressBarInterval);
-                    console.log(os.EOL + 'Oak Ready');
+                    stopProgressBar();
+                    console.log(os.EOL + 'Oak Ready'.green);
                     process.exit(0);
                   }
                 }
@@ -197,6 +191,27 @@ if (!loadConfig()) {
   }
 }
 
+var progressBarInterval = -1;
+
+function progressBar() {
+    process.stdout.write('.');
+}
+
+function startProgressBar(message) {
+  if (message != null) {
+    process.stdout.write(message);
+  }
+  if (progressBarInterval == -1) {
+    progressBarInterval = setInterval(progressBar, 500);
+  }
+}
+
+function stopProgressBar() {
+  clearInterval(progressBarInterval);
+  progressBarInterval = -1;
+}
+
+
 function onFlashTimeout() {
   clearInterval(progressBarInterval);
   errorAndQuit('Flash timeout - flash failed.');
@@ -208,9 +223,6 @@ function onRebootTimeout() {
 }
 
 
-function progressBar() {
-  process.stdout.write('.');
-}
 
 function selectAccountAndDevice() {
   console.log("Logging in to Particle...".green);
@@ -316,12 +328,18 @@ function writeConfig(accessToken, devices, idsList, selectedDeviceIndex) {
       process.exit(1);
     }
   }
+  // "device_id":"d957040001b0a72e4ec79884","device_name":"oak1 (Device ID: d957040001b0a72e4ec79884)"
   var toWrite = {
     access_token: accessToken,
     devices : []
   };
   for (var i in devices) {
     toWrite.devices.push({'device_id' : idsList[i], 'device_name' : devices[i].name === null ? 'Unnamed Device' : devices[i].name, 'active' : (i == selectedDeviceIndex ? true : false)});		
+    if (i == selectedDeviceIndex) {
+      // config file old style
+      toWrite.device_id = idsList[i];
+      toWrite.device_name = devices[i].name + ' (Device ID: ' + idsList[i] + ')';
+    }    
   }				
   try {
     fs.writeFileSync(pathToConfig+'config.json', JSON.stringify(toWrite, null, 2));
