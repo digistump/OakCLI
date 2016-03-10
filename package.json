@@ -1,11 +1,16 @@
 {
-  "name": "OakTools",
+  "name": "OakCli",
   "description": "Tools for the Digistump Oak",
-  "version": "1.0.0",
+  "version": "0.9.5",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digistump/OakCLI"
+  },
   "dependencies": {
     "colors": "^1.1.2",
+    "commander": "^2.9.0",
     "mkdirp": "^0.5.1",
     "readline-sync": "^1.3.0",
-    "spark": "^1.0.0"
+    "spark": "^1.1.0"
   }
 }
