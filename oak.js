@@ -135,8 +135,8 @@ if (!loadConfig()) {
           process.chdir(onlyPath);
           console.log('Sending file to cloud, to flash ' + config.devices[activeDeviceIndex].device_name + ' (Device ID: ' + config.devices[activeDeviceIndex].device_id + ')');
           device.flash([onlyFile], function(err, data) {
-            if (err) {
-              errorAndQuit('An error occurred while flashing the device:' + err);
+            if (err || (data && data.ok == false)) {
+              errorAndQuit('An error occurred while flashing the device:');
             } else {
               startProgressBar("Flashing.");
               flashTimeout = setTimeout(onFlashTimeout, 60 * 1 * 1000); // flash timeout : 1 minute
@@ -144,7 +144,6 @@ if (!loadConfig()) {
                 var eventData = data.data.trim();
                 if (data.name == 'spark/flash/status') {
                   clearTimeout(flashTimeout);
-                  
                   if (eventData == 'success') {
                     console.log('Done.');
                     rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
@@ -152,7 +151,7 @@ if (!loadConfig()) {
                     // there is a bug in particle cloud : sometimes 'spark/flash/status'
                     // return 'failed' but flash is ok
                     // so wait for reboot
-                    if (rebooting == false) { // we can have the offline message before the falsh failed message
+                    if (rebooting == false) { // we can have the offline message before the flash failed message
                       console.log(os.EOL + 'Failed but perhaps success.');
                       rebootTimeout = setTimeout(onRebootTimeout, 30 * 1 * 1000); // reboot start timeout : 30 seconds
                     }
