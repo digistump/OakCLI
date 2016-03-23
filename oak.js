@@ -1,5 +1,5 @@
 'use strict';
-
+var version = '1.0.1';
 var spark = require('spark');
 var fs = require('fs');
 var readlineSync = require('readline-sync');
@@ -10,7 +10,7 @@ var windows = process.platform.indexOf("win") === 0;
 var os = require("os");
 var program = require('commander');
 
-program.version('0.9.6')
+program.version(version)
   .usage('[-d deviceName] <binary file to upload>')
   .option('-d, --device <device name>', 'target device name')
   .parse(process.argv);
@@ -107,6 +107,8 @@ if (process.platform == 'linux' || process.platform == 'freebsd') {
   pathToConfig = process.env.HOME + '/Library/Preferences/oak/';
 }
 
+console.log('OakCLI tool version '+version);
+
 if (!loadConfig()) {
   loginOrFail();
 } else {
@@ -119,11 +121,21 @@ if (!loadConfig()) {
     } else {
       spark.login({accessToken: config.access_token}, function(err, data) {
         if (err) {
+          if(err.code !== undefined){
+            if(err.code == 'ENOTFOUND'){
+              errorAndQuit('Could not connect to Particle.io');
+            }
+          }
           fs.unlinkSync(pathToConfig+'config.json');
           errorAndQuit('Your access token has expired, please run this tool from the command line to get a new token.');
         }
         spark.getDevice(config.devices[activeDeviceIndex].device_id, function(err, device) {
           if (err) {
+            if(err.code !== undefined){
+              if(err.code == 'ENOTFOUND'){
+                errorAndQuit('Could not connect to Particle.io');
+              }
+            }
             fs.unlinkSync(pathToConfig+'config.json');
             errorAndQuit('Selected device is no longer available on this account, please run this tool from the command line to select a device.');
           }
@@ -261,6 +273,11 @@ function loginCallback(err, access) {
   var device;
   spark.listDevices(function(err, devices) {
     if(err || devices === null || devices.length == 0) {
+      if(err.code !== undefined){
+        if(err.code == 'ENOTFOUND'){
+          console.log('Could not connect to Particle.io'.red);
+        }
+      }
       console.log('No devices available.'.red);
       readlineSync.question('Press enter to exit.');
       process.exit(1);
@@ -291,6 +308,7 @@ function loginCallback(err, access) {
     clear();
     while (1) {
       var index;
+      console.log('OakCLI tool version '+version); 
       if(selectedDevice == null) {
         index = readlineSync.keyInSelect(devicesList, 'Which device would you like to use?', {cancel: 'Exit'});
       } else {

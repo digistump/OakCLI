@@ -17,6 +17,7 @@ rmdir /Q /S builds\osx\%str%
 mkdir builds\osx\%str%
 cd builds
 del "oakcli-%str%-osx.tar.gz"
+del "oakupsrv-osx.tar.gz"
 cd ../
 vagrant up osx
 vagrant ssh osx -c "curl \"ftp://%ipstr%/build_scripts/osx_compile.sh\" -o \"osx_compile.sh\" && chmod 0777 ./osx_compile.sh && ./osx_compile.sh %str% %ipstr%"
