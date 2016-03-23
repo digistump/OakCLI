@@ -32,7 +32,8 @@
 3. sudo npm install -g nexe`
 4. `git clone https://github.com/digistump/OakCLI`
 5. `cd OakCLI`
-6. `nexe -r 0.12.10 -i ./oak.js -o ./oak`
+6. `npm install`
+7. `nexe -r 0.12.10 -i ./oak.js -o ./oak`
 
 ### OSX
 
@@ -41,7 +42,8 @@
 3. `npm install -g nexe`
 4. `git clone https://github.com/digistump/OakCLI`
 5. `cd OakCLI`
-6. `nexe -r 0.12.10 -i ./oak.js -o ./oak`
+6. `npm install`
+7. `nexe -r 0.12.10 -i ./oak.js -o ./oak`
 
 ### Windows
 
