@@ -11,7 +11,7 @@ cd OakCLI-master
 npm install
 sudo rm -r builds/osx/$1
 mkdir -p builds/osx/$1
-nexe -r 0.12.10 -i ./oak.js -o ./builds/osx/$1/oak
+nexe -f -r 0.12.10 -i ./oak.js -o ./builds/osx/$1/oak
 chmod 0777 ./builds/osx/$1/oak
 cd ./builds/osx/
 sudo rm ../oakcli-$1-osx.tar.gz

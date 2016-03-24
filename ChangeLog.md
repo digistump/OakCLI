@@ -1,3 +1,6 @@
+03/24/2016 - thunderace - v1.0.2
+- fix nexe genration in order to handle arguments correctly 
+- package.json version updated
 03/03/2016 - thunderace - v0.9.6-candidate2
 - ignore failed flash message - it's a particle bug
 - ignore offline message before success or failed flash message - same particle bug

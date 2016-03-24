@@ -1,5 +1,5 @@
 'use strict';
-var version = '1.0.1';
+var version = '1.0.2';
 var spark = require('spark');
 var fs = require('fs');
 var readlineSync = require('readline-sync');
