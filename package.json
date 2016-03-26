@@ -1,7 +1,7 @@
 {
   "name": "OakCli",
   "description": "Tools for the Digistump Oak",
-  "version": "0.9.5",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/digistump/OakCLI"
