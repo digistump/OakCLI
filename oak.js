@@ -64,7 +64,7 @@ function loadConfig() {
     }
     if (program.device != undefined) {
       // find device by name
-      for(var deviceId in config.devices) {
+      for (var deviceId in config.devices) {
         if (config.devices[deviceId].device_name == program.device) {
           activeDeviceIndex = deviceId;
           break;
@@ -72,7 +72,7 @@ function loadConfig() {
       }
     } else {
       // get the active device
-      for(deviceId in config.devices) {
+      for (deviceId in config.devices) {
         if (config.devices[deviceId].active === true) {
           activeDeviceIndex = deviceId;
           break;
@@ -84,7 +84,7 @@ function loadConfig() {
     }
     return true;
   }
-  catch(e){
+  catch(e) {
     return false;
   }
 }
@@ -92,8 +92,7 @@ function loadConfig() {
 function loginOrFail() {
   if (program.args.length == 1) {
     errorAndQuit('Config file not found at: ' + pathToConfig + 'config.json - please run the oak tool from the command line with no arguments to configure.');
-  }
-  else{
+  } else {
     particleLogin();
   }
 }
@@ -121,8 +120,8 @@ if (!loadConfig()) {
     } else {
       spark.login({accessToken: config.access_token}, function(err, data) {
         if (err) {
-          if(err.code !== undefined){
-            if(err.code == 'ENOTFOUND'){
+          if (err.code !== undefined){
+            if (err.code == 'ENOTFOUND'){
               errorAndQuit('Could not connect to Particle.io');
             }
           }
@@ -131,10 +130,8 @@ if (!loadConfig()) {
         }
         spark.getDevice(config.devices[activeDeviceIndex].device_id, function(err, device) {
           if (err) {
-            if(err.code !== undefined){
-              if(err.code == 'ENOTFOUND'){
-                errorAndQuit('Could not connect to Particle.io');
-              }
+            if (err.code && err.code == 'ENOTFOUND') {
+              errorAndQuit('Could not connect to Particle.io');
             }
             fs.unlinkSync(pathToConfig+'config.json');
             errorAndQuit('Selected device is no longer available on this account, please run this tool from the command line to select a device.');
@@ -205,7 +202,7 @@ if (!loadConfig()) {
 var progressBarInterval = -1;
 
 function progressBar() {
-    process.stdout.write('.');
+  process.stdout.write('.');
 }
 
 function startProgressBar(message) {
@@ -222,7 +219,6 @@ function stopProgressBar() {
   progressBarInterval = -1;
 }
 
-
 function onFlashTimeout() {
   clearInterval(progressBarInterval);
   errorAndQuit('Flash timeout - flash failed.');
@@ -232,8 +228,6 @@ function onRebootTimeout() {
   clearInterval(progressBarInterval);
   errorAndQuit('Reboot timeout - flash likely failed.');
 }
-
-
 
 function selectAccountAndDevice() {
   console.log("Logging in to Particle...".green);
@@ -257,7 +251,6 @@ function particleLogin() {
   });
   console.log('Logging in to Particle...'.green);
   spark.login({username: userName.trim(), password: password.trim()},loginCallback);
-
 }
 
 function loginCallback(err, access) {
@@ -271,12 +264,12 @@ function loginCallback(err, access) {
   var idsList = [];
   var device;
   spark.listDevices(function(err, devices) {
-    if(err || devices === null || devices.length == 0) {
-      if(err.code !== undefined){
-        if(err.code == 'ENOTFOUND'){
-          console.log('Could not connect to Particle.io'.red);
-        }
-      }
+    if (err && err.code == 'ENOTFOUND') {
+      console.log('Could not connect to Particle.io'.red);
+      readlineSync.question('Press enter to exit.');
+      process.exit(1);
+    }
+    if (devices === null || devices.length == 0) {
       console.log('No devices available.'.red);
       readlineSync.question('Press enter to exit.');
       process.exit(1);
@@ -308,7 +301,7 @@ function loginCallback(err, access) {
     while (1) {
       var index;
       console.log('OakCLI tool version '+version); 
-      if(selectedDevice == null) {
+      if (selectedDevice == null) {
         index = readlineSync.keyInSelect(devicesList, 'Which device would you like to use?', {cancel: 'Exit'});
       } else {
         console.log("Currently selected device: ".yellow.bold+selectedDevice.cyan.bold);
@@ -366,7 +359,7 @@ function writeConfig(accessToken, devices, idsList, selectedDeviceIndex) {
   return true;
 }
 
-function failAndUsage(errorText){
+function failAndUsage(errorText) {
   console.log(errorText);
   console.log('------');
   console.log('Usage:');
