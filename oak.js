@@ -291,10 +291,8 @@ function loginCallback(err, access) {
     devicesList.push('------------------------');
     devicesList.push('Switch Particle Accounts');
     var selectedDevice = null;
-    if (config !== undefined) {
-      if (config.devices[activeDeviceIndex].device_name !== undefined && activeDeviceIndex != -1 && config.devices[activeDeviceIndex].device_name !== undefined) {
+    if (config !== undefined && config.devices !== undefined && activeDeviceIndex != -1 && config.devices[activeDeviceIndex].device_name !== undefined ) {
         selectedDevice = config.devices[activeDeviceIndex].device_name + ' (Device ID: ' + config.devices[activeDeviceIndex].device_id + ')';
-      }
     }
 
     clear();
