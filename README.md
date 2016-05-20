@@ -20,16 +20,18 @@
 ### Linux
 
 **If using Ubuntu 12.04 or earlier, or similar - node requires g++4.8 or higher**
-1. sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-2. sudo apt-get update
-3. sudo apt-get install -y gcc-4.8 g++-4.8
-4. sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
-5. sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
+
+1. `sudo add-apt-repository ppa:ubuntu-toolchain-r/test`
+2. `sudo apt-get update`
+3. `sudo apt-get install -y gcc-4.8 g++-4.8`
+4. `sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8`
+5. `sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6`
 
 **After those steps or if using 14.04 or similar or higher**
-1. curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
-2. sudo apt-get install -y nodejs build-essential
-3. sudo npm install -g nexe`
+
+1. `curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -`
+2. `sudo apt-get install -y nodejs build-essential`
+3. `sudo npm install -g nexe`
 4. `git clone https://github.com/digistump/OakCLI`
 5. `cd OakCLI`
 6. `npm install`
