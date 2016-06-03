@@ -1,5 +1,5 @@
 cd %~dp0%
-ipconfig | findstr /R /C:"IPv4 Address" | findstr /R /C:"192.168.0" > ip.txt
+ipconfig | findstr /R /C:"IPv4 Address" | findstr /R /C:"192.168.1" > ip.txt
 set /p ipstr=<ip.txt
 del ip.txt
 set ipstr=%ipstr: =%
@@ -24,3 +24,4 @@ vagrant ssh osx -c "curl \"ftp://%ipstr%/build_scripts/osx_compile.sh\" -o \"osx
 vagrant halt osx
 taskkill /f /im ftpdmin.exe
 cd %~dp0%
+pause
